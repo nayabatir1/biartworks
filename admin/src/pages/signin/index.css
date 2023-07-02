@@ -1,0 +1,10 @@
+#wrapper {
+  height: 100vh;
+  width: 100vw;
+}
+
+#wrapper > div {
+  width: 100%;
+  max-width: 500px;
+  min-width: 315px;
+}

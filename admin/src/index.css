@@ -1,0 +1,62 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+}
+
+.top-bar {
+  height: 40px;
+}
+
+.main-content {
+  height: calc(100vh - 2rem - 14px);
+}
+
+.menu > div:hover {
+  cursor: pointer;
+}
+
+.text-small {
+  font-size: 0.8rem;
+}
+
+.active {
+  color: #6b59cc;
+  background-color: #f8f9fc;
+}
+
+.active > div > .text-small {
+  color: rgb(139, 136, 136);
+}
+
+.OPEN {
+  color: red !important;
+}
+
+.CONTAINED {
+  color: #bdab4e !important;
+}
+
+.CLOSED {
+  color: green !important;
+}
+
+.fullHeight {
+  height: 100vh;
+}
+
+.error {
+  font-size: 150px;
+  color: #008b62;
+  text-shadow: 1px 1px 1px #00593e, 2px 2px 1px #00593e, 3px 3px 1px #00593e,
+    4px 4px 1px #00593e, 5px 5px 1px #00593e, 6px 6px 1px #00593e,
+    7px 7px 1px #00593e, 8px 8px 1px #00593e, 25px 25px 8px rgba(0, 0, 0, 0.2);
+}
+
+.user-group::after {
+  content: ", ";
+}
+
+.user-group:last-child::after {
+  content: "";
+}

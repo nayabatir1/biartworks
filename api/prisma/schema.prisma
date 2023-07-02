@@ -1,0 +1,166 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum OTPStatus {
+  USED
+  UNUSED
+}
+
+model UserGroups {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  type            String
+  userIds         String[]       @db.ObjectId
+  users           User[]         @relation(fields: [userIds], references: [id])
+  createdAt       DateTime       @default(now())
+  defectAccessIds String[]       @db.ObjectId
+  defectAccess    DefectAccess[] @relation(fields: [defectAccessIds], references: [id])
+
+  @@index([type])
+}
+
+model User {
+  id              String         @id @default(auto()) @map("_id") @db.ObjectId
+  email           String
+  name            String?
+  token           String?
+  password        String?
+  isActive        Boolean        @default(false)
+  role            Role           @default(USER)
+  groupIds        String[]       @db.ObjectId
+  groups          UserGroups[]   @relation(fields: [groupIds], references: [id])
+  chats           Chats[]
+  DefectType      DefectType[]
+  createdAt       DateTime       @default(now())
+  File            File[]
+  DefectsLog      DefectsLog[]
+  Defects         Defects[]
+  defectAccessIds String[]       @db.ObjectId
+  defectAccesses  DefectAccess[] @relation(fields: [defectAccessIds], references: [id])
+
+  @@unique([email])
+  @@index([role, createdAt])
+}
+
+enum Status {
+  OPEN
+  CONTAINED
+  CLOSED
+}
+
+model DefectType {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  type        String
+  createdById String    @db.ObjectId
+  createdBy   User?     @relation(fields: [createdById], references: [id])
+  defects     Defects[]
+  createdAt   DateTime  @default(now())
+}
+
+model DefectAccess {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  userGroupIds String[]     @db.ObjectId
+  userGroups   UserGroups[] @relation(fields: [userGroupIds], references: [id])
+  userIds      String[]     @db.ObjectId
+  users        User[]       @relation(fields: [userIds], references: [id])
+  defect       Defects      @relation(fields: [defectsId], references: [id])
+  defectsId    String       @db.ObjectId
+
+  @@unique([defectsId])
+}
+
+model Defects {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  partNo       String
+  status       Status     @default(OPEN)
+  imageIds     String[]   @db.ObjectId
+  images       File[]
+  chats        Chats[]
+  createdAt    DateTime   @default(now())
+  defectTypeId String     @db.ObjectId
+  defectType   DefectType @relation(fields: [defectTypeId], references: [id])
+  createdById  String     @db.ObjectId
+  createdBy    User?      @relation(fields: [createdById], references: [id])
+
+  defectAccess DefectAccess?
+  DefectsLog   DefectsLog?
+
+  @@index([createdAt])
+}
+
+model DefectsLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  defectId    String   @db.ObjectId
+  status      Status   @default(OPEN)
+  createdAt   DateTime @default(now())
+  actionTaken String   @default("Defect created")
+  updatedById String   @db.ObjectId
+  updatedAt   DateTime
+  updatedBy   User?    @relation(fields: [updatedById], references: [id])
+  defect      Defects  @relation(fields: [defectId], references: [id])
+
+  @@unique([defectId])
+}
+
+model File {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  key         String
+  mimeType    String
+  chats       Chats[]
+  defects     Defects? @relation(fields: [defectsId], references: [id])
+  defectsId   String?  @db.ObjectId
+  createdById String   @db.ObjectId
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+}
+
+model Chats {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  defectId      String   @db.ObjectId
+  defects       Defects  @relation(fields: [defectId], references: [id])
+  senderId      String   @db.ObjectId
+  sender        User?    @relation(fields: [senderId], references: [id])
+  createdAt     DateTime @default(now())
+  fileId        String?  @db.ObjectId
+  text          String?
+  file          File?    @relation(fields: [fileId], references: [id])
+  statusUpdated Boolean  @default(false)
+  status        String?
+
+  @@index([defectId, createdAt])
+  @@index([text])
+}
+
+model Otp {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  otp       String
+  email     String
+  createdAt DateTime  @default(now())
+  status    OTPStatus @default(UNUSED)
+
+  @@unique([email])
+  @@index([otp])
+}
+
+model Company {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  address       String?
+  phone         String?
+  employeeCount String?
+  location      String?
+  zip           String?
+  language      String?
+}
